@@ -5,7 +5,7 @@ This repository is a dynamic playground for hands-on coding experiments, inspire
 
 Whether you're here to learn, teach, or simply geek out, let’s turn curiosity into code.
 
-####📂  What’s Inside?
+#### 📂  What’s Inside?
 - /projects – Mini-apps & prototypes 
 - /algorithms – Classic & novel solutions
 - /tutorials - Something i wanted to learn
