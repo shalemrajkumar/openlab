@@ -13,3 +13,25 @@ Whether you're here to learn, teach, or simply geek out, let’s turn curiosity 
 - /surpriseme - i too don't really know its a random topic of choice by my ai assistants
 
 **🌟  Code fearlessly. Learn relentlessly.**
+
+<details>
+<summary>tree view</summary>
+
+```
+.
+├── README.md
+└── tutorials
+    ├── matlab
+    └── python
+        ├── mathematical_methods
+        ├── ml_models
+        │   └── supervized
+        │       └── linear
+        │           └── csvm
+        │               ├── APUF_CRP.txt
+        │               └── csvm_sklearn.ipynb
+        └── modelling
+
+```
+
+</details>
