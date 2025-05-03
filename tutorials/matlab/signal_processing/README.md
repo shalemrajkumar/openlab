@@ -19,7 +19,7 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 
 - Sampling
     - The process of converting a continuous signal into a discrete signal by taking samples at regular intervals.
-    - $ x[n] = x(nT_s) $
+    - $x[n] = x(nT_s)$
     - where $ T_s $ is the sampling interval and $ n $ is the sample number.
 
 - Quantization
