@@ -19,8 +19,8 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 
 - Sampling
     - The process of converting a continuous signal into a discrete signal by taking samples at regular intervals.
-    - $$ x[n] = x(nT_s) $$
-    - where $$ T_s $$ is the sampling interval and $$ n $$ is the sample number.
+    - $ x[n] = x(nT_s) $
+    - where $ T_s $ is the sampling interval and $ n $ is the sample number.
 
 - Quantization
 
@@ -51,13 +51,13 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 - Example:
     - $$ x[n] = a \cos(2\pi f_0 n T_s + \phi) $$
     - what could be the original x(t) if sampled at T_s?
-        - may be a $$ x(t) = a\cos(2\pi f_0 n t + \phi) $$, but not necessarily.
-        - $$ x(t) = a \cos(2\pi (f_0 + mF_s)t + \phi) $$
+        - may be a $ x(t) = a\cos(2\pi f_0 n t + \phi) $, but not necessarily.
+        - $ x(t) = a \cos(2\pi (f_0 + mF_s)t + \phi) $
         - there are infinitely many possible x(t) that could produce the same samples.
     
 
     - The Nyquist-Shannon sampling theorem states that a signal can be completely reconstructed from its samples if it is sampled at a rate greater than twice its highest frequency component.
-    - $$ f_s > 2f_{max} $$
-    - where $$ f_{max} $$ is the maximum frequency of the signal.
+    - $ f_s > 2f_{max} $
+    - where $ f_{max} $ is the maximum frequency of the signal.
     - If the sampling rate is too low, aliasing occurs, causing high-frequency components to be misrepresented as lower frequencies.
 
