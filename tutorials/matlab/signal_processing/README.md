@@ -11,7 +11,7 @@
 - Recording the signal with maximizing SNR
 - Sampling the analog signal to digital signal. without losing information
 
-### analog to digital conversion
+#### analog to digital conversion
 
 context:
 
@@ -29,7 +29,8 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
     
     > Quantization:
 
-       `` Assume a range of -1V to +1V and 3-bit quantization (8 levels).
+  
+        `` Assume a range of -1V to +1V and 3-bit quantization (8 levels).
             Step size: 2/8 = 0.25V.
             Levels: [−1,−0.75,−0.5,−0.25,0,0.25,0.5,0.75]
              Map each sample:
@@ -42,7 +43,7 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
         - For example, 0.5V might be stored as 010 in binary.
     - Quantization error: The difference between the actual signal and the quantized value.
     
-`convention`
+- `convention`
     - T_s : sampling period
     - F_s : sampling frequency
 
@@ -56,8 +57,42 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
         - there are infinitely many possible x(t) that could produce the same samples.
     
 
-    - The Nyquist-Shannon sampling theorem states that a signal can be completely reconstructed from its samples if it is sampled at a rate greater than twice its highest frequency component.
-    - $ f_s > 2f_{max} $
+
+#### frequencie domain and time domain representations
+
+- frequency domain and time domain representation
+
+    - $$ X(f) = \sum_{n=-\infty}^{\infty} x[n] e^{-j2\pi fnT_s} $$
+    - where $ X(f) $ is the Fourier transform of the discrete signal $ x[n] $.
+
+    altertively
+    - $$ x(t) = \sum_{n=-\infty}^{\infty} x[n] e^{j2\pi fnT_s} $$
+
+    where X(f) is the spectrum of the x(t) signal.
+
+
+#### Nyquist theorem
+
+- The Nyquist-Shannon sampling theorem 
+    - $ f_s >= 2f_{max} $
     - where $ f_{max} $ is the maximum frequency of the signal.
     - If the sampling rate is too low, aliasing occurs, causing high-frequency components to be misrepresented as lower frequencies.
+
+#### Nyquist interpolation formula
+   
+- $$ x(t) = \sum_{n=-\infty}^{\infty} x[n] \text{sinc}(f_s(t - nT_s)) $$
+    - Using the sinc function as the interpolation kernel. its simple scaling and shifting
+
+    - why sinc function ?
+        - its zero-crossings at integer multiples of T_s
+        - its integral over one period is 1
+        - $x(mT_s)$ = $ \sum {n=-\infty}^{\infty} x[n] \text{sinc}((m - n)) = x[m]$ since sinc is 0 everywhere 
+        - its Fourier transform is a rectangular function
+        - there are many ways to interpulate like rectangular, triangular, and hamming window functions.
+
+- 
+
+
+- $ x(t) \rightarrow sampling as fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
+- $ x[n] \rightarrow sinc interpolation \rightarrow x(t) $
 
