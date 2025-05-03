@@ -50,10 +50,10 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 - Sampling causes loss of information
 
 - Example:
-    - $$ x[n] = a \cos(2\pi f_0 n T_s + \phi) $$
+    - $$x[n] = a \cos(2\pi f_0 n T_s + \phi)$$
     - what could be the original x(t) if sampled at T_s?
-        - may be a $ x(t) = a\cos(2\pi f_0 n t + \phi) $, but not necessarily.
-        - $ x(t) = a \cos(2\pi (f_0 + mF_s)t + \phi) $
+        - may be a $x(t) = a\cos(2\pi f_0 n t + \phi)$, but not necessarily.
+        - $x(t) = a \cos(2\pi (f_0 + mF_s)t + \phi)$
         - there are infinitely many possible x(t) that could produce the same samples.
     
 
@@ -62,8 +62,8 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 
 - frequency domain and time domain representation
 
-    - $$ X(f) = \sum_{n=-\infty}^{\infty} x[n] e^{-j2\pi fnT_s} $$
-    - where $ X(f) $ is the Fourier transform of the discrete signal $ x[n] $.
+    - $$X(f) = \sum_{n=-\infty}^{\infty} x[n] e^{-j2\pi fnT_s}$$
+    - where $X(f)$ is the Fourier transform of the discrete signal $x[n]$.
 
     altertively
     - $$x(t) = \sum_{n=-\infty}^{\infty} x[n] e^{j2\pi fnT_s}$$
@@ -74,25 +74,25 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 #### Nyquist theorem
 
 - The Nyquist-Shannon sampling theorem 
-    - $ f_s >= 2f_{max} $
-    - where $ f_{max} $ is the maximum frequency of the signal.
+    - $f_s >= 2f_{max}$
+    - where $f_{max}$ is the maximum frequency of the signal.
     - If the sampling rate is too low, aliasing occurs, causing high-frequency components to be misrepresented as lower frequencies.
 
 #### Nyquist interpolation formula
    
-- $$ x(t) = \sum_{n=-\infty}^{\infty} x[n] \text{sinc}(f_s(t - nT_s)) $$
+- $$x(t) = \sum_{n=-\infty}^{\infty} x[n] \text{sinc}(f_s(t - nT_s))$$
     - Using the sinc function as the interpolation kernel. its simple scaling and shifting
 
     - why sinc function ?
         - its zero-crossings at integer multiples of T_s
         - its integral over one period is 1
-        - $x(mT_s)$ = $ \sum {n=-\infty}^{\infty} x[n] \text{sinc}((m - n)) = x[m]$ since sinc is 0 everywhere 
+        - $x(mT_s)$ = $\sum {n=-\infty}^{\infty} x[n] \text{sinc}((m - n)) = x[m]$ since sinc is 0 everywhere 
         - its Fourier transform is a rectangular function
         - there are many ways to interpulate like rectangular, triangular, and hamming window functions.
 
 - 
 
 
-- $ x(t) \rightarrow sampling as fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
-- $ x[n] \rightarrow sinc interpolation \rightarrow x(t) $
+- $x(t) \rightarrow sampling as fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
+- $x[n] \rightarrow sinc interpolation \rightarrow x(t)$
 
