@@ -66,7 +66,7 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
     - where $ X(f) $ is the Fourier transform of the discrete signal $ x[n] $.
 
     altertively
-    - $$ x(t) = \sum_{n=-\infty}^{\infty} x[n] e^{j2\pi fnT_s} $$
+    - $$x(t) = \sum_{n=-\infty}^{\infty} x[n] e^{j2\pi fnT_s}$$
 
     where X(f) is the spectrum of the x(t) signal.
 
