@@ -120,8 +120,52 @@ y[n] = \sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]
     - Comb filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
     - Adaptive filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
     - Linear phase filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
-    - FIR filter : y[n] = \sum_{k=0}^{N} b_k x[n-k]
-    - IIR filter : y[n] = \sum_{k=0}^{N} b_k x[n-k] + \sum_{m=1}^{M} a_m y[n-m]
-    - Recursive filter : y[n] = \sum_{k=0}^{N} b_k x[n-k] + \sum_{m=1}^{M} a_m y[n-m]
+    - FIR filter : y[n] = $\sum_{k=0}^{N} b_k x[n-k]$
+    - IIR filter : y[n] = $\sum_{k=0}^{N} b_k x[n-k] + \sum_{m=1}^{M} a_m y[n-m]$
+    - Recursive filter : y[n] = $\sum_{k=0}^{N} b_k x[n-k] + \sum_{m=1}^{M} a_m y[n-m]$
 
-#### Linear Systems
+#### Linear time-invariant systems (LTI)
+
+- Linear Systems : i.e. sum of inputs = sum of outputs and scaling of inputs = scaling of outputs. (linear combination of inputs = linear combination of outputs)
+    - y[n] = x[n] + 1
+
+- Time-invariant Systems : i.e. if the input is delayed, the output is also delayed by the same amount of time. (i.e. if the input is shifted in time, the output is also shifted in time by the same amount of time)
+
+    - Counter example: y[n] = x[2n]
+        - if the input is delayed by x[n - n_0], the output is delayed by y[2n - n_0]
+        - if the outputs are delayed by y[n - n_0] = x[2n - 2n_0]
+
+- Causal Systems : i.e. the output at time n depends only on the input at time n and the past inputs. 
+
+- Overall Linear time-invariant systems (LTI) is well understood.
+
+#### impulse response of LTI systems
+
+- Unit impulse
+
+    - The unit impulse function (kronecker delta) $\delta[n]$ is defined as:
+        - $\delta[n] = 1$ for n = 0
+        - $\delta[n] = 0$ for n != 0
+
+    - any signal can be represented as a linear combination of unit impulses.
+        - $x[n] = \sum_{k=-\infty}^{\infty} x[k] \delta[n-k]$
+    
+- Consider a LTI system $x[n] \rightarrow y[n]$
+
+    - $\delta[n] \rightarrow h[n] (impulse response)$
+    - from time invariance : $\delta[n - n_0] \rightarrow h[n - n_0]$
+    - from linearity : $\sum_{k=-\infty}^{\infty} x[k] \delta[n-k] \rightarrow \sum_{k=-\infty}^{\infty} x[k] h[n-k]$
+    - if h[n] of a LTI is known
+    - $$ x[n] \rightarrow y[n] = \sum_{k=-\infty}^{\infty} x[k] h[n-k]$$
+    - $$ y[n] = x[n] * h[n]$$ (convolution)
+    - where * is the convolution operator.
+
+#### Example of LTI Systems
+
+- h[n] = $2 \delta[n - 3]$
+- x[n] = $\sin(2\pi f n)$
+
+    - y[n] = $ \sum_{k=-\infty}^{\infty} x[k] h[n-k]$ = $2 \sum_{k=-\infty}^{\infty} x[k] \delta[n-k-3]$ = $2 sin(2\pi f (n-3))$
+    - here we considered the unit impulse function will be 1 at k = n - 3 and 0 otherwise.
+
+

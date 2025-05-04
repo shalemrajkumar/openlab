@@ -13,6 +13,8 @@ clear all; close all; clc;
 
 f = @(x) x.^2;
 
+%generates integers from kill picom
+
 x = randi([-100, 100], 1, 100000) .* rand(1, 100000);
 
 y = f(x);
