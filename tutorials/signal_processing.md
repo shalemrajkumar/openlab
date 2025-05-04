@@ -93,6 +93,35 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 - 
 
 
-- $x(t) \rightarrow sampling as fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
-- $x[n] \rightarrow sinc interpolation \rightarrow x(t)$
+- $x(t) \rightarrow sampling \as \fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
+- $x[n] \rightarrow \sinc \interpolation \rightarrow x(t)$
 
+
+### Digital signal filtering
+
+- filtering certain frequencies
+
+#### Linear constant-coefficient difference equation (LCCD)
+
+y[n] = \sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]
+
+- where $y[n]$ is the output signal, $x[n]$ is the input signal, $a_k$ and $b_m$ are the filter coefficients, and N and M are the filter orders.
+
+- Example :
+
+    - Amplifier : y[n] = Gain * x[n]
+    - Delay : y[n] = x[n - n_0]
+    - Two point moving average filter : y[n] = 0.5 * (x[n] + x[n - 1])
+    - Low pass filter : y[n] = 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1]
+    - High pass filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1]
+    - Band pass filter : y[n] = 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
+    - Band stop filter : y[n] = 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
+    - Notch filter : y[n] = 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
+    - Comb filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
+    - Adaptive filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
+    - Linear phase filter : y[n] = x[n] - 0.5 * (x[n] + x[n - 1]) - 0.5 * y[n - 1] + 0.5 * (x[n] - x[n - 1]) - 0.5 * y[n - 1]
+    - FIR filter : y[n] = \sum_{k=0}^{N} b_k x[n-k]
+    - IIR filter : y[n] = \sum_{k=0}^{N} b_k x[n-k] + \sum_{m=1}^{M} a_m y[n-m]
+    - Recursive filter : y[n] = \sum_{k=0}^{N} b_k x[n-k] + \sum_{m=1}^{M} a_m y[n-m]
+
+#### Linear Systems
