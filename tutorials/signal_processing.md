@@ -84,17 +84,15 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
     - Using the sinc function as the interpolation kernel. its simple scaling and shifting
 
     - why sinc function ?
-        - its zero-crossings at integer multiples of T_s
+        - its zero-crossings at integer multiples of $T_s$
         - its integral over one period is 1
         - $x(mT_s)$ = $\sum {n=-\infty}^{\infty} x[n] \text{sinc}((m - n)) = x[m]$ since sinc is 0 everywhere 
         - its Fourier transform is a rectangular function
-        - there are many ways to interpulate like rectangular, triangular, and hamming window functions.
-
-- 
+        - there are many ways to interpulate like rectangular, triangular, and hamming window functions. 
 
 
-- $x(t) \rightarrow sampling \as \fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
-- $x[n] \rightarrow \sinc \interpolation \rightarrow x(t)$
+- $x(t) \rightarrow sampling/ as/ fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
+- $x[n] \rightarrow/ sinc/ interpolation \rightarrow x(t)$
 
 
 ### Digital signal filtering
@@ -103,7 +101,7 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
 
 #### Linear constant-coefficient difference equation (LCCD)
 
-y[n] = \sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]
+y[n] = $\sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]$
 
 - where $y[n]$ is the output signal, $x[n]$ is the input signal, $a_k$ and $b_m$ are the filter coefficients, and N and M are the filter orders.
 
@@ -156,8 +154,8 @@ y[n] = \sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]
     - from time invariance : $\delta[n - n_0] \rightarrow h[n - n_0]$
     - from linearity : $\sum_{k=-\infty}^{\infty} x[k] \delta[n-k] \rightarrow \sum_{k=-\infty}^{\infty} x[k] h[n-k]$
     - if h[n] of a LTI is known
-    - $$ x[n] \rightarrow y[n] = \sum_{k=-\infty}^{\infty} x[k] h[n-k]$$
-    - $$ y[n] = x[n] * h[n]$$ (convolution)
+    - $$x[n] \rightarrow y[n] = \sum_{k=-\infty}^{\infty} x[k] h[n-k]$$
+    - $$y[n] = x[n] * h[n]$$ (convolution)
     - where * is the convolution operator.
 
 #### Example of LTI Systems
@@ -165,7 +163,7 @@ y[n] = \sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]
 - h[n] = $2 \delta[n - 3]$
 - x[n] = $\sin(2\pi f n)$
 
-    - y[n] = $ \sum_{k=-\infty}^{\infty} x[k] h[n-k]$ = $2 \sum_{k=-\infty}^{\infty} x[k] \delta[n-k-3]$ = $2 sin(2\pi f (n-3))$
+    - y[n] = $\sum_{k=-\infty}^{\infty} x[k] h[n-k]$ = $2 \sum_{k=-\infty}^{\infty} x[k] \delta[n-k-3]$ = $2 sin(2\pi f (n-3))$
     - here we considered the unit impulse function will be 1 at k = n - 3 and 0 otherwise.
 
 
