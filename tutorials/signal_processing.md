@@ -91,8 +91,8 @@ the signal is recored a continuous electronic (voltage) signal. the signal is sa
         - there are many ways to interpulate like rectangular, triangular, and hamming window functions. 
 
 
-- $x(t) \rightarrow sampling/ as/ fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
-- $x[n] \rightarrow  sinc/ interpolation \rightarrow x(t)$
+- $x(t) \rightarrow sampling \space as \space fract{1}{T_s} \rightarrow x[n] \rightarrow quantization \rightarrow x_q[n]$
+- $x[n] \rightarrow  sinc \space interpolation \rightarrow x(t)$
 
 
 ### Digital signal filtering
@@ -166,7 +166,5 @@ y[n] = $\sum_{k=1}^{N} a_k y[n-k] + \sum_{m=0}^{M} b_m x[n-m]$
     - y[n] = $\sum_{k=-\infty}^{\infty} x[k] h[n-k]$ = $2 \sum_{k=-\infty}^{\infty} x[k] \delta[n-k-3]$ = $2 sin(2\pi f (n-3))$
     - here we considered the unit impulse function will be 1 at k = n - 3 and 0 otherwise.
 
-how to create space in md latex with hello world
 
-$hello \space world$
-$test/ space \/ or /\ idk$
+
