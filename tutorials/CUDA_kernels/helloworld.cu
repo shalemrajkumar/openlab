@@ -1,9 +1,14 @@
 #include <iostream>
 using namespace std;
 
-int main ()
-
+__global__ void hello()
 {
-  cout<< "Hi"<<endl;
+  printf("Hello World from GPU!\n");
+}
+
+int main ()
+{
+  hello<<<1, 1>>>();
+  cudaDeviceSynchronize();
   return 0;
 }
