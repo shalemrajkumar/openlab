@@ -1,8 +1,11 @@
 #!/home/rj/.pyenv/shims/python 
 
 #-------------------- Imports and Environment Setup --------------------
-
-import numpy as np 
+import os
+import time
+import json
+import copy
+import numpy as np
 
 import snntorch as snn
 import torch
@@ -33,10 +36,10 @@ class LeakySurrogate(nn.Module):
       self.spike_gradient = self.ATan.apply ## we can also use sigmoid, tanh or fast sigmoid functions here
   
   # the forward function is called each time we call Leaky
-  def forward(self, input_, mem):
+  def forward(self, input, mem):
     spk = self.spike_gradient((mem-self.threshold))  # call the Heaviside function
     reset = (self.beta * spk * self.threshold).detach() # remove reset from computational graph
-    mem = self.beta * mem + input_ - reset # update the membrane potential
+    mem = self.beta * mem + input - reset # update the membrane potential
     return spk, mem
 
   # Forward pass: Heaviside function
@@ -104,7 +107,8 @@ class Net(nn.Module):
 #-------------------- Training --------------------
 
 class Modeler:
-    def __init__(self, model, loss, optimizer, train_loader, test_loader, num_steps, device, path='./data', *kwargs):
+    def __init__(self, model, loss, optimizer, train_loader, test_loader, num_steps, device, path='./data', **kwargs):
+
         self.net = model
         self.train_loader = train_loader
         self.test_loader = test_loader
@@ -115,6 +119,11 @@ class Modeler:
         self._test_iter = None
         self.decoder = loss.decoder 
 
+        # best-model tracking
+        self.best_test_acc = 0.0
+        self.best_train_acc = 0.0
+        self.best_state = None
+
 
     def data_loader(self, loader):
         for data, targets in loader:
@@ -124,12 +133,13 @@ class Modeler:
             yield spike_data, targets
 
 
-    def train(self, num_epochs, interm_evaluate=False, verbose=False, eval_every=50):
+    def train(self, num_epochs, interm_evaluate=False, verbose=False, eval_every=50, save_best=True):
 
     
         self.counter = 0
         self.loss_hist = []
         self.test_loss_hist = []
+        self.test_loss_iters = [] #stores the iter numb to compare the test loss with the train loss
 
         for epoch in range(num_epochs):
             self.iter_counter = 0
@@ -152,13 +162,26 @@ class Modeler:
                 self.counter += 1
                 self.iter_counter += 1
 
-                # print loss and accuracy every eval_every iterations
-                if verbose and self.counter % eval_every == 0:
-                    if interm_evaluate:
-                        test_data, test_targets = self.interm_evaluate(epoch)
-                        self._printer(data, targets, epoch, test_data, test_targets)
-                    else:
-                        self._printer(data, targets, epoch)
+                # interm evaluation of a test batch and print logic
+
+
+                if interm_evaluate and self.counter % eval_every == 0:
+                    test_data, test_targets = self.interm_evaluate(epoch)
+                    self.net.train()   # interm_evaluate leaves net in eval() mode 
+
+                    train_acc = self._batch_accuracy(data, targets, train=True, verbose=verbose)
+                    test_acc = self._batch_accuracy(test_data, test_targets, train=False, verbose=verbose)
+
+                    if verbose:
+                        self._printer(epoch)
+
+                    if save_best:
+                        self._update_best(train_acc, test_acc, epoch)
+
+                elif verbose and self.counter % eval_every == 0:
+                    train_acc = self._print_batch_accuracy(data, targets, train=True, verbose=True)
+                    self._printer(epoch)
+
 
 
     def _get_test_batch(self):
@@ -171,6 +194,7 @@ class Modeler:
             self._test_iter = iter(self.data_loader(self.test_loader))
             return next(self._test_iter)
 
+
     def interm_evaluate(self, epoch):
         with torch.no_grad():
             self.net.eval()
@@ -178,17 +202,33 @@ class Modeler:
             test_spk, test_mem = self.net(test_data)
             test_loss = self.loss(test_spk, test_targets)
             self.test_loss_hist.append(test_loss.item())
-            return test_data, test_targets  
+            self.test_loss_iters.append(self.counter)
+            return test_data, test_targets
 
-    def _printer(self, data, targets, epoch, test_data=None, test_targets=None):
+
+    def _printer(self, epoch):
         print(f"Epoch {epoch}, Iteration {self.iter_counter}")
         print(f"Train | Loss: {self.loss_hist[-1]:.2f}", end="  ")
-        self._print_batch_accuracy(data, targets, train=True)
-
-        if test_data is not None:
-            print(f"Test  | Loss: {self.test_loss_hist[-1]:.2f}", end="  ")
-            self._print_batch_accuracy(test_data, test_targets, train=False)
+        if self.test_loss_hist:
+            print(f"Test | Loss: {self.test_loss_hist[-1]:.2f}")
+        else:
+            print()
         print()
+
+
+    def _update_best(self, train_acc, test_acc, epoch):
+        if test_acc > self.best_test_acc:
+            self.best_test_acc = test_acc
+            self.best_train_acc = train_acc
+            self.best_state = {
+                'model_state_dict': copy.deepcopy(self.net.state_dict()),
+                'optimizer_state_dict': copy.deepcopy(self.optimizer.state_dict()),
+                'epoch': epoch,
+                'iteration': self.counter,
+                'train_acc': train_acc,
+                'test_acc': test_acc,
+            }
+
 
     def final_model_evaluation(self, train_accuracy=False):
         # Final evaluation of the model on the test set
@@ -200,39 +240,115 @@ class Modeler:
             for test_data, test_targets in self.data_loader(self.test_loader):
                 output, _ = self.net(test_data)
                 _, predicted = self.decoder(output).max(1)
+        
+    def final_model_evaluation(self, train_accuracy=False):
+        self.net.eval()
+        with torch.no_grad():
+            total_correct, total_samples = 0, 0
+            for test_data, test_targets in self.data_loader(self.test_loader):
+                output, _ = self.net(test_data)
+                _, predicted = self.decoder(output).max(1)
                 total_correct += (predicted == test_targets).sum().item()
                 total_samples += test_targets.size(0)
-            
             final_accuracy = total_correct / total_samples
             print(f"Final Test Set Accuracy: {final_accuracy*100:.2f}%")
 
+            final_train_accuracy = None
             if train_accuracy:
-                total_correct = 0
-                total_samples = 0
-                
+                total_correct, total_samples = 0, 0
                 for train_data, train_targets in self.data_loader(self.train_loader):
                     output, _ = self.net(train_data)
                     _, predicted = self.decoder(output).max(1)
                     total_correct += (predicted == train_targets).sum().item()
                     total_samples += train_targets.size(0)
-                
                 final_train_accuracy = total_correct / total_samples
                 print(f"Final Train Set Accuracy: {final_train_accuracy*100:.2f}%")
-        
+
+        return final_accuracy, final_train_accuracy
 
 
+    def _batch_accuracy(self, data, targets, train=False, verbose=True):
 
-    def _print_batch_accuracy(self, data, targets, train=False):
-        
         output, _ = self.net(data)
-        _, idx = self.decoder(output).max(1)
-        acc = np.mean((targets == idx).detach().cpu().numpy())
+        _, idx = self.decoder(output).max(1) # custom decoding of spiking output layer
+        acc = float(np.mean((targets == idx).detach().cpu().numpy())) # comparing classes 
+        if verbose:
+            label = "Train" if train else "Test"
+            print(f"{label} set accuracy for a single minibatch: {acc*100:.2f}%")
+        return acc 
 
-        if train:
-            print(f"Train set accuracy for a single minibatch: {acc*100:.2f}%")
+    def save_results(self, save_dir='./checkpoints', final_test_acc=None, final_train_acc=None):
+        model_name = self.net.__class__.__name__
+        timestamp = time.strftime('%Y%m%d_%H%M%S')
+        folder = os.path.join(save_dir, f"{model_name}_{timestamp}")
+        os.makedirs(folder, exist_ok=True)
+
+        # best checkpoint seen during training
+        if self.best_state is not None:
+            torch.save(self.best_state, os.path.join(folder, 'best_model.pt'))
+
+        # final model state,
+        final_state = {
+            'model_state_dict': self.net.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+        }
+        torch.save(final_state, os.path.join(folder, 'final_model.pt'))
+
+        if hasattr(self.net, 'num_inputs'):
+            topology = {
+                'num_inputs': self.net.num_inputs,
+                'num_hidden': self.net.num_hidden,
+                'num_outputs': self.net.num_outputs,
+            }
         else:
-            print(f"Test set accuracy for a single minibatch: {acc*100:.2f}%")
+            topology = {
+                'input_size': getattr(self.net, 'input_size', None),
+                'node_order': self.net.node_order,
+                'node_inputs': self.net.node_inputs,
+                'node_delayed': getattr(self.net, 'node_delayed', None),
+                'node_sizes': {name: node.out_features for name, node in self.net.nodes.items()},
+                'output_names': self.net.output_names,
+             }
 
+        hyperparams = {
+            'model_name': model_name,
+            'timestamp': timestamp,
+            **topology,
+            'num_steps': self.num_steps,
+            'tau': getattr(self.loss, 'tau', None),
+            'total_iterations': self.counter,
+            'best_test_acc': self.best_test_acc,
+            'best_train_acc': self.best_train_acc,
+            'best_epoch': self.best_state['epoch'] if self.best_state else None,
+            'best_iteration': self.best_state['iteration'] if self.best_state else None,
+            'final_test_acc': final_test_acc,
+            'final_train_acc': final_train_acc,
+        }
+        with open(os.path.join(folder, 'metadata.json'), 'w') as f:
+            json.dump(hyperparams, f, indent=2)       
+
+        history = {
+            'loss_hist': self.loss_hist,
+            'test_loss_hist': self.test_loss_hist,
+            'test_loss_iters': self.test_loss_iters,
+        }
+        with open(os.path.join(folder, 'history.json'), 'w') as f:
+            json.dump(history, f)
+
+        print(f"Saved results to {folder}")
+        return folder
+
+    def load_checkpoint(self, path, load_optimizer=True):
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
+        self.net.load_state_dict(checkpoint['model_state_dict'])
+        if load_optimizer and 'optimizer_state_dict' in checkpoint:
+            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        print(f"Loaded checkpoint from {path}")
+        if 'test_acc' in checkpoint:
+            print(f"  test_acc={checkpoint['test_acc']*100:.2f}%  "
+                  f"train_acc={checkpoint['train_acc']*100:.2f}%  "
+                  f"epoch={checkpoint['epoch']}  iteration={checkpoint['iteration']}")
+        return checkpoint
                 
 
 class SF_temporal_rate_CE(nn.Module):
@@ -296,7 +412,7 @@ if __name__ == "__main__":
     # training parmeters 
 
     learning_rate = 1e-3
-    num_epochs = 1
+    num_epochs = 50
 
     #-------------------- Load Dataset --------------------
 
@@ -322,7 +438,9 @@ if __name__ == "__main__":
 
     snn_modeler.train(num_epochs=num_epochs, interm_evaluate=True, verbose=True, eval_every=50)
 
-    snn_modeler.final_model_evaluation(train_accuracy=True)
+    final_test_acc, final_train_acc = snn_modeler.final_model_evaluation(train_accuracy=True)
+    
+    snn_modeler.save_results(final_test_acc=final_test_acc, final_train_acc=final_train_acc)
     
     # <clean>
     # # Iterate through minibatches
